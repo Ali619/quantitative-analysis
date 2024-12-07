@@ -25,6 +25,7 @@ def add_to_db(df: pd.DataFrame, database_name: str, table_name: str, based_on: s
     cursor = conn.cursor()
     cursor.execute(f'SELECT date FROM {table_name}')
     existing_data = {row[0] for row in cursor.fetchall()}
+    df['date'] = df['date'].astype(str)
     filltered_data = [tuple(row) for row in df.to_numpy() if row[0] not in existing_data]
     if filltered_data:
         cursor.executemany(f'''INSERT INTO {table_name} (date, open, high, low, close, volume)
@@ -36,7 +37,7 @@ def add_to_db(df: pd.DataFrame, database_name: str, table_name: str, based_on: s
         
         print(f'{len(filltered_data)} data points added to {table_name} table from: {first_date} to {last_date}')
     else:
-        print(f'No new data to add to {table_name} table.')
+        print(f'No new data add to {table_name} table.')
     
     conn.close()
 
