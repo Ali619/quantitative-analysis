@@ -1,17 +1,17 @@
 import ccxt
 import pandas as pd
 from dotenv import load_dotenv
-import os
 import time
 import datetime
 import os
 from pathlib import Path
 
-TIME = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+NOW = datetime.datetime.now()
+YEAR = datetime.datetime.now().year
+TIME = NOW.strftime("%Y-%m-%d_%H-%M")
 PATH = Path(__file__).parent.parent / 'exchange-fetched-data'
 PATH.mkdir(parents=True, exist_ok=True)
 
-# os.makedirs(PATH, exist_ok=True)
 load_dotenv()
 ID = os.getenv('id')
 SECRET = os.getenv('secret')
@@ -28,7 +28,7 @@ def exchange_fetch_price(timeframe: str, symbol: str, limit: int=1000) -> pd.Dat
         'secret': SECRET,
         'enableRateLimit': True,
     })
-    since = '2024-01-01T00:00:00Z'
+    since = f'{YEAR}-01-01T00:00:00Z'
     since = exchange.parse8601(since)
     for retries in range(5):
         try:
@@ -40,7 +40,7 @@ def exchange_fetch_price(timeframe: str, symbol: str, limit: int=1000) -> pd.Dat
     else:
         print('Maximum retries reached, fetching data is closed.')
         exit()
-    print(f'ohlvc data is fetched. Creating dataframe and storing in {PATH}/{TIME}-{timeframe.upper()}-data.csv')
+    print(f'ohlvc data is fetched. Dataframe created and stored in /exchange-fetched-data/{TIME}-{timeframe.upper()}-data.csv')
     df = pd.DataFrame(ohlcv, columns=['date', 'open', 'high', 'low', 'close', 'volume'])
     df['date'] = pd.to_datetime(df['date'], unit='ms')
     df.to_csv(f'{PATH}/{TIME}-{timeframe.upper()}-data.csv', index=False)
