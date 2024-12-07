@@ -1,5 +1,10 @@
 import sqlite3
+from pathlib import Path
+
 import pandas as pd
+
+PATH = Path(__file__).parent.parent / "database"
+PATH.mkdir(parents=True, exist_ok=True)
 
 
 def create_table(datanase_name: str, table_name: str) -> None:
