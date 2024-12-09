@@ -30,7 +30,9 @@ def create_table(datanase_name: str, table_name: str) -> None:
     conn.close()
 
 
-def add_to_db(df: pd.DataFrame, database_name: str, table_name: str) -> None:
+def add_to_db(df: pd.DataFrame, database_name: str, timeframe: str) -> None:
+    symbol = database_name.replace("_", "")
+    table_name = symbol + "_" + timeframe
     create_table(database_name, table_name)
     conn = sqlite3.connect(f"./database/{database_name}.db")
     cursor = conn.cursor()
@@ -77,10 +79,12 @@ async def async_ad_to_db(params) -> None:
         path, symbol, timeframe = param
         print(path, symbol, timeframe)
         df = pd.read_csv(path)
-        add_to_db(df=df, database_name=symbol, table_name=timeframe)
+        add_to_db(df=df, database_name=symbol, timeframe=timeframe)
 
 
-def remove_duplicates(database_name: str, table_name: str) -> None:
+def remove_duplicates(database_name: str, timeframe: str) -> None:
+    symbol = database_name.replace("_", "")
+    table_name = symbol + "_" + table_name
     conn = sqlite3.connect(f"./database/{database_name}.db")
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM '{table_name}'")
