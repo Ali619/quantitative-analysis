@@ -1,9 +1,21 @@
-import pandas as pd
+import asyncio
+import os
 
-from crawlers.exchangeCrawler import exchange_fetch_price
-from sqlite.sqlite import add_to_db
+from dotenv import load_dotenv
+
+from crawlers.exchange import run_asynco_fetch
+from sqlite.sqlite import PATH, async_ad_to_db, split_path_to_create_db
+
+load_dotenv()
+symbols = os.getenv("symbols").split(",")
+timeframes = os.getenv("timeframes").split(",")
+
+
+async def main():
+    await run_asynco_fetch(symbols, timeframes)
+    split_dfs = await split_path_to_create_db(PATH)
+    await async_ad_to_db(split_dfs)
+
 
 if __name__ == "__main__":
-    df = exchange_fetch_price(timeframe="4h", symbol="BTC/USDT")
-    # df = pd.read_csv('./exchange-fetched-data/2024-12-07_22-24-4H-data.csv')
-    add_to_db(df=df, database_name="coinex_4h", table_name="BTC_USDT")
+    asyncio.run(main())
