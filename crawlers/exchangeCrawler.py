@@ -55,12 +55,12 @@ async def exchange_fetch_price(
             ccxt.ExchangeNotAvailable,
             Exception,
         ) as e:
-            print(type(e).__name__, e, f"waiting for {retries + 1} secs")
+            print(type(e).__name__, e, f"waiting for {retries + 1} secs to try again")
 
             await asyncio.sleep(retries + 1)
     else:
         print("Maximum retries reached, fetching data is closed.")
-        exit()
+        return None
     file_name = f'{PATH}/{symbol.replace("/", "_")}-{timeframe}-{TIME}'
     print(
         f"ohlvc for {symbol} is fetched, dataframe created and stored in {file_name}.csv"
@@ -74,11 +74,11 @@ async def exchange_fetch_price(
     return df
 
 
-async def run_asynco_fetch(symbols, timeframes):
+async def run_asynco_fetch(symbols, timeframes) -> None:
     task = [
         exchange_fetch_price(timeframe=timeframe, symbol=symbol)
         for symbol in symbols
         for timeframe in timeframes
     ]
     result = await asyncio.gather(*task)
-    return result
+    print("Fetchinf data is done")
